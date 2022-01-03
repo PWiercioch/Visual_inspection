@@ -1,12 +1,14 @@
-from Utils import *
-import numpy as np
-import matplotlib.pyplot as plt
+from Picture import *
 
 
 if __name__ == "__main__":
-    path_to_pic = r'pictures/hex_10.jpg'
+    picture = Picture(r'pictures/infill_1.jpg', blurr_intensity=3)
 
-    pic = plt.imread(path_to_pic)
+    picture.show_original()
+    # picture.show_blurred()
 
-    plt.figure()
-    plt.imshow(pic)
+    picture.sobel_edges()
+    picture.canny_edges(100, 200)
+
+    # picture.show_sobel_edges()
+    picture.show_canny_edges()
