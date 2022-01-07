@@ -4,6 +4,9 @@ from confidentials import *
 import matplotlib.pyplot as plt
 
 
+class DB_manager:
+    pass
+
 img = open(r'pictures/regular_shapes/black_1.jpg', 'rb')
 data = img.read()
 
