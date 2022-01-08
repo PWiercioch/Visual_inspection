@@ -32,10 +32,10 @@ class Detector:
                 cv2.polylines(self.device.img, [box], True, (255, 0, 0), 2)
 
                 # Display dimensions
-                cv2.putText(self.device.img, "Width {} cm".format(round(object_width, 1)), (int(x - 50), int(y - 15)),
-                            cv2.FONT_HERSHEY_PLAIN, 1, (100, 200, 0), 2)
-                cv2.putText(self.device.img, "Height {} cm".format(round(object_height, 1)), (int(x - 50), int(y + 20)),
-                            cv2.FONT_HERSHEY_PLAIN, 1, (100, 200, 0), 2)
+                cv2.putText(self.device.img, "Width {} cm".format(round(object_width, 1)), (int(x - 100), int(y - 30)),
+                            cv2.FONT_HERSHEY_PLAIN, 2, (100, 200, 0), 2)
+                cv2.putText(self.device.img, "Height {} cm".format(round(object_height, 1)), (int(x - 100), int(y + 40)),
+                            cv2.FONT_HERSHEY_PLAIN, 2, (100, 200, 0), 2)
 
 
     def detect_aruco(self):
@@ -82,14 +82,20 @@ class Detector:
 
 
 class Threshold_Detector(Detector):
-    def __init__(self, device, t1, t2):
+    def __init__(self, device, t1, t2, method):
         Detector.__init__(self, device)
+        self.thresh_method = method
         self.t1 = t1
         self.t2 = t2
 
     def pre_process_image(self, img):
-        greyscale = Detector.pre_process_image(self, img)
-        ret, self.pre_processed_image = cv2.threshold(greyscale, self.t1, self.t2, cv2.THRESH_BINARY)
+        if self.thresh_method == 'inverse':
+            m = cv2.THRESH_BINARY_INV
+        else:
+            m = cv2.THRESH_BINARY
+
+        self.greyscale = Detector.pre_process_image(self, img)
+        ret, self.pre_processed_image = cv2.threshold(self.greyscale, self.t1, self.t2, m)
 
 
 class Canny_Detector(Detector):
@@ -101,8 +107,8 @@ class Canny_Detector(Detector):
         self.t2 = t2
 
     def pre_process_image(self, img):
-        greyscale = Detector.pre_process_image(self, img)
-        blurred = cv2.GaussianBlur(greyscale, (self.blurr_intensity, self.blurr_intensity), sigmaX=self.sigma, sigmaY=self.sigma)
+        self.greyscale = Detector.pre_process_image(self, img)
+        blurred = cv2.GaussianBlur(self.greyscale, (self.blurr_intensity, self.blurr_intensity), sigmaX=self.sigma, sigmaY=self.sigma)
         self.pre_processed_image = cv2.Canny(image=blurred, threshold1=self.t1, threshold2=self.t2)
 
 

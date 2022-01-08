@@ -12,7 +12,7 @@ if __name__ == "__main__":
     elif device == 'Image':
         device = Image(1.3, r'pictures/regular_shapes/white_5_aruco.jpg')
     elif device == 'Smartphone':
-        device = Smartphone(0.5, CAM_ADDRES)
+        device = Smartphone(0.75, CAM_ADDRES)
     elif device == 'Webcam':
         device = Webcam(1.2)
 
@@ -28,9 +28,9 @@ if __name__ == "__main__":
                     break
         else:
             if detector_type == 'Threshold':
-                detector_params = input("Input detector paramters seperated by spaces:\nlower threshold\nUpper Threshold")
+                detector_params = input("Input detector paramters seperated by spaces:\nlower threshold\nUpper Threshold\nMethod: binary or inverse")
                 detector_params = detector_params.split()
-                detector = Threshold_Detector(device, int(detector_params[0]), int(detector_params[1]))
+                detector = Threshold_Detector(device, int(detector_params[0]), int(detector_params[1]), detector_params[2])
             elif detector_type == 'Canny':
                 detector_params = input("Input detector paramters seperated by spaces:\nBlur intensity\nBlur sigma\nlower threshold\nUpper Threshold")
                 detector_params = detector_params.split()
@@ -41,6 +41,7 @@ if __name__ == "__main__":
 
             while True:
                 detector.pre_process_image(device.get_image())
+                cv2.imshow('Greyscale', detector.greyscale)
                 cv2.imshow('Pre processed image', detector.pre_processed_image)
                 detector.get_contours()
                 detector.measure()
