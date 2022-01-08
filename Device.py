@@ -19,11 +19,10 @@ class Device:
         sys.exit()
 
 
-class Camera(Device):
-    def __init__(self, factor, camera_addr):
+class Webcam(Device):
+    def __init__(self, factor):
         Device.__init__(self, factor)
         self.video = cv2.VideoCapture(0)
-        self.video.open(camera_addr)
         self.wait_time = 1
 
     def get_image(self):
@@ -36,6 +35,12 @@ class Camera(Device):
     def close(self):
         self.video.release()
         Device.close(self)
+
+
+class Smartphone(Webcam):
+    def __init__(self, factor, camera_addr):
+        Webcam.__init__(self, factor)
+        self.video.open(camera_addr)
 
 
 class Image(Device):

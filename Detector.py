@@ -22,7 +22,6 @@ class Detector:
         # self.aruco_perimeter = self.detect_aruco()
         # self.pixel_cm_ratio = self.aruco_perimeter / 20
         #
-        # self.greyscale = cv2.cvtColor(self._original, cv2.COLOR_BGR2GRAY)
         # self.blurred = cv2.GaussianBlur(self.greyscale, (blurr_intensity, blurr_intensity), sigmaX=sigma, sigmaY=sigma)
         # self.empty = np.zeros(np.shape(self._original))
         #
@@ -71,24 +70,15 @@ class Detector:
         else:
             return None
 
-    def get_contours(self, img, m='simple'):
-        if m == 'none':
-            method = cv2.CHAIN_APPROX_NONE
-        elif m == 'simple':
-            method = cv2.CHAIN_APPROX_SIMPLE
+    def get_contours(self):
+        method = cv2.CHAIN_APPROX_SIMPLE
 
-        self.contours, self.hierarchy = cv2.findContours(image=img, mode=cv2.RETR_EXTERNAL, method=method)
+        self.contours, self.hierarchy = cv2.findContours(image=self.pre_processed_image, mode=cv2.RETR_EXTERNAL, method=method)
 
-    def pre_process_image(self, img, type = 'thresholding'):
+    def pre_process_image(self, img):
         greyscale = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         self.empty = np.zeros(np.shape(img))
-
-        if type == 'thresholding':
-            ret, self.thresh = cv2.threshold(greyscale, 130, 255, cv2.THRESH_BINARY)
-
-
-
-
+        return greyscale
 
     def show_contours(self):
         image_copy = self.empty.copy()
@@ -108,11 +98,24 @@ class Detector:
         # see the results
         cv2.imshow('CHAIN_APPROX_SIMPLE Point only', image_copy3)
 
-    def sobel_edges(self, d=1, size=3):
-        self.sobelx = cv2.Sobel(src=self.blurred, ddepth=cv2.CV_64F, dx=d, dy=0, ksize=size)
-        self.sobely = cv2.Sobel(src=self.blurred, ddepth=cv2.CV_64F, dx=0, dy=d, ksize=size)
-        self.sobelxy = cv2.Sobel(src=self.blurred, ddepth=cv2.CV_64F, dx=d, dy=d, ksize=size)
 
-    def canny_edges(self, img, t1, t2):
-        self.canny = cv2.Canny(image=img, threshold1=t1, threshold2=t2)
+class Threshold_Detector(Detector):
+    def __init__(self, device):
+        Detector.__init__(self, device)
+
+    def pre_process_image(self, img, t1, t2):
+        greyscale = Detector.pre_process_image(self, img)
+        ret, self.pre_processed_image = cv2.threshold(greyscale, t1, t2, cv2.THRESH_BINARY)
+
+
+class Canny_Detector(Detector):
+    def __init__(self, device):
+        Detector.__init__(self, device)
+
+    def pre_process_image(self, img, blurr_intensity, sigma, t1, t2):
+        greyscale = Detector.pre_process_image(self, img)
+        blurred = cv2.GaussianBlur(greyscale, (blurr_intensity, blurr_intensity), sigmaX=sigma, sigmaY=sigma)
+        self.pre_processed_image = cv2.Canny(image=blurred, threshold1=t1, threshold2=t2)
+
+
 

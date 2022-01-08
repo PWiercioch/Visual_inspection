@@ -5,28 +5,48 @@ import pyinputplus
 
 
 if __name__ == "__main__":
-    device = pyinputplus.inputMenu(['Image', 'Camera', 'Or quit'], prompt='Select input device\n', default='Or quit', limit=3)
-
-    # device = 'Image'
+    device = pyinputplus.inputMenu(['Image', 'Smartphone', 'Webcam', 'Or quit'], prompt='Select input device\n', default='Or quit', limit=3)
 
     if device == 'Or quit':
         Device.close()
     elif device == 'Image':
         device = Image(1.3, r'pictures/regular_shapes/aruco_test.jpg')
-    elif device =='Camera':
-        device = Camera(0.5, CAM_ADDRES)
-
-    detector = Detector(device)
+    elif device == 'Smartphone':
+        device = Smartphone(0.5, CAM_ADDRES)
+    elif device == 'Webcam':
+        device = Webcam(1.2)
 
     while True:
-        detector.pre_process_image(device.get_image())
-        detector.get_contours(detector.thresh)
-        detector.show_contours()
-        detector.measure()
+        detector_type = pyinputplus.inputMenu(['None', 'Threshold', 'Canny'], prompt='Select detector type\n', default='None', limit=3)
+        print('Press q to quit')
 
-        device.display()
-        key = cv2.waitKey(device.wait_time)
-        if device.close_condition(key):
+        if detector_type == 'None':
+            while True:
+                device.get_image()
+                device.display()
+                key = cv2.waitKey(device.wait_time)
+                if device.close_condition(key):
+                    break
+        else:
+            if detector_type == 'Threshold':
+                detector = Threshold_Detector(device)
+            elif detector_type == 'Canny':
+                detector = Canny_Detector(device)
+
+            while True:
+                detector.pre_process_image(device.get_image(), 130, 255)
+                cv2.imshow('Pre processed image', detector.pre_processed_image)
+                detector.get_contours()
+                detector.measure()
+                detector.show_contours()
+
+                device.display()
+                key = cv2.waitKey(device.wait_time)
+                if device.close_condition(key):
+                    break
+
+        decision = pyinputplus.inputYesNo('Choose different detector?')
+        if decision =='no':
             break
 
     Device.close()
