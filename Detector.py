@@ -1,7 +1,5 @@
 import numpy as np
-import matplotlib.pyplot as plt
 import cv2
-import random
 
 
 class Detector:
@@ -10,22 +8,6 @@ class Detector:
         # Load Aruco detector
         self.parameters = cv2.aruco.DetectorParameters_create()
         self.aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_5X5_50)
-
-    # def __init__(self, path, dim, thershold_lower=130, threshold_upper=255, sigma=0, blurr_intensity=3):
-        # self._original = cv2.imread(path, cv2.IMREAD_COLOR)
-        # self._original = cv2.resize(self._original, dim, interpolation=cv2.INTER_AREA)
-        #
-        # # Load Aruco detector
-        # self.parameters = cv2.aruco.DetectorParameters_create()
-        # self.aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_5X5_50)
-        #
-        # self.aruco_perimeter = self.detect_aruco()
-        # self.pixel_cm_ratio = self.aruco_perimeter / 20
-        #
-        # self.blurred = cv2.GaussianBlur(self.greyscale, (blurr_intensity, blurr_intensity), sigmaX=sigma, sigmaY=sigma)
-        # self.empty = np.zeros(np.shape(self._original))
-        #
-        # ret, self.thresh = cv2.threshold(self.greyscale, thershold_lower, threshold_upper, cv2.THRESH_BINARY)
 
 
     def measure(self):
@@ -100,22 +82,28 @@ class Detector:
 
 
 class Threshold_Detector(Detector):
-    def __init__(self, device):
+    def __init__(self, device, t1, t2):
         Detector.__init__(self, device)
+        self.t1 = t1
+        self.t2 = t2
 
-    def pre_process_image(self, img, t1, t2):
+    def pre_process_image(self, img):
         greyscale = Detector.pre_process_image(self, img)
-        ret, self.pre_processed_image = cv2.threshold(greyscale, t1, t2, cv2.THRESH_BINARY)
+        ret, self.pre_processed_image = cv2.threshold(greyscale, self.t1, self.t2, cv2.THRESH_BINARY)
 
 
 class Canny_Detector(Detector):
-    def __init__(self, device):
+    def __init__(self, device, blurr_intensity, sigma, t1, t2):
         Detector.__init__(self, device)
+        self.blurr_intensity = blurr_intensity
+        self.sigma = sigma
+        self.t1 = t1
+        self.t2 = t2
 
-    def pre_process_image(self, img, blurr_intensity, sigma, t1, t2):
+    def pre_process_image(self, img):
         greyscale = Detector.pre_process_image(self, img)
-        blurred = cv2.GaussianBlur(greyscale, (blurr_intensity, blurr_intensity), sigmaX=sigma, sigmaY=sigma)
-        self.pre_processed_image = cv2.Canny(image=blurred, threshold1=t1, threshold2=t2)
+        blurred = cv2.GaussianBlur(greyscale, (self.blurr_intensity, self.blurr_intensity), sigmaX=self.sigma, sigmaY=self.sigma)
+        self.pre_processed_image = cv2.Canny(image=blurred, threshold1=self.t1, threshold2=self.t2)
 
 
 
