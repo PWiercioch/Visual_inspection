@@ -16,7 +16,7 @@ class Device:
     def close():
         cv2.destroyAllWindows()
         print('Quitting program')
-        sys.exit()
+        # sys.exit()
 
 
 class Webcam(Device):

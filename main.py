@@ -10,9 +10,9 @@ if __name__ == "__main__":
     if device == 'Or quit':
         Device.close()
     elif device == 'Image':
-        device = Image(1.3, r'pictures/regular_shapes/white_5_aruco.jpg')
+        device = Image(0.15, r'pictures/final/20220125_224118.jpg')
     elif device == 'Smartphone':
-        device = Smartphone(0.75, CAM_ADDRES)
+        device = Smartphone(0.5, CAM_ADDRES)
     elif device == 'Webcam':
         device = Webcam(1.2)
 
@@ -40,12 +40,11 @@ if __name__ == "__main__":
             print('\nPress q to quit')
 
             while True:
-                detector.pre_process_image(device.get_image())
-                cv2.imshow('Greyscale', detector.greyscale)
-                cv2.imshow('Pre processed image', detector.pre_processed_image)
-                detector.get_contours()
+                cv2.imshow('Original', device.get_image())
                 detector.measure()
-                detector.show_contours()
+                # detector.show_contours()
+                # cv2.imshow('Greyscale', detector.greyscale)
+                cv2.imshow('Pre processed image', detector.pre_processed_image)
 
                 device.display()
                 key = cv2.waitKey(device.wait_time)

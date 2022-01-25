@@ -11,9 +11,12 @@ class Detector:
 
 
     def measure(self):
+        img = self.device.get_image()
         self.aruco_perimeter = self.detect_aruco()
         if self.aruco_perimeter:
             self.pixel_cm_ratio = self.aruco_perimeter / 20
+            self.pre_process_image(img)
+            self.get_contours()
             self.aruco_bool = True
 
             for cnt in self.contours:
@@ -32,9 +35,9 @@ class Detector:
                 cv2.polylines(self.device.img, [box], True, (255, 0, 0), 2)
 
                 # Display dimensions
-                cv2.putText(self.device.img, "Width {} cm".format(round(object_width, 1)), (int(x - 100), int(y - 30)),
+                cv2.putText(self.device.img, "Width {} cm".format(round(object_width, 3)), (int(x - 100), int(y - 30)),
                             cv2.FONT_HERSHEY_PLAIN, 2, (100, 200, 0), 2)
-                cv2.putText(self.device.img, "Height {} cm".format(round(object_height, 1)), (int(x - 100), int(y + 40)),
+                cv2.putText(self.device.img, "Height {} cm".format(round(object_height, 3)), (int(x - 100), int(y + 40)),
                             cv2.FONT_HERSHEY_PLAIN, 2, (100, 200, 0), 2)
 
 
@@ -42,12 +45,17 @@ class Detector:
         # Get Aruco marker
         corners, _, _ = cv2.aruco.detectMarkers(self.device.img, self.aruco_dict, parameters=self.parameters)
 
+        # box = cv2.minAreaRect(corners[0])
+
         # Draw polygon around the marker
         int_corners = np.int0(corners)
-        cv2.polylines(self.device.img, int_corners, True, (0, 255, 0), 5)
+        cv2.polylines(self.device.img, int_corners, True, (255, 255, 255), 25)
+        cv2.fillPoly(self.device.img, int_corners, (255, 255, 255))
 
         # Aruco Perimeter
         if corners:
+            # int_corners = np.int0(corners)
+            # cv2.rectangle(self.device.img, int_corners[0][0][0], int_corners[0][0][2], (255, 255, 255), -1)
             return cv2.arcLength(corners[0], True)
         else:
             return None
@@ -94,6 +102,7 @@ class Threshold_Detector(Detector):
         else:
             m = cv2.THRESH_BINARY
 
+        self.empty = np.zeros(np.shape(img))
         self.greyscale = Detector.pre_process_image(self, img)
         ret, self.pre_processed_image = cv2.threshold(self.greyscale, self.t1, self.t2, m)
 
